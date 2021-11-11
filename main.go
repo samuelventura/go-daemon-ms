@@ -40,10 +40,6 @@ func main() {
 	defer snode.Close()
 	log.Println("socket", spath)
 
-	mnode := rnode.AddChild("man")
-	defer mnode.WaitDisposed()
-	defer mnode.Close()
-
 	anode := rnode.AddChild("api")
 	defer anode.WaitDisposed()
 	defer anode.Close()
@@ -60,7 +56,6 @@ func main() {
 	case <-rnode.Closed():
 	case <-snode.Closed():
 	case <-anode.Closed():
-	case <-mnode.Closed():
 	case <-ctrlc:
 	case <-exit:
 	}
