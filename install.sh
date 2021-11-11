@@ -1,5 +1,9 @@
 #!/bin/bash -x
 
+#journalctl -u GoDaemonMs.service
+#journalctl -fu GoDaemonMs.service
+#sudo systemctl stop GoDaemonMs
+#sudo /usr/local/bin/go-daemon-ms -service uninstall
 if [[ "$OSTYPE" == "linux"* ]]; then
     SRC=$HOME/go/bin
     DST=/usr/local/bin

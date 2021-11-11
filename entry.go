@@ -50,8 +50,10 @@ func entry(inter bool, exit chan bool) {
 
 	stdin := make(chan interface{})
 	go func() {
-		defer close(stdin)
-		ioutil.ReadAll(os.Stdin)
+		if inter {
+			defer close(stdin)
+			ioutil.ReadAll(os.Stdin)
+		}
 	}()
 	select {
 	case <-rnode.Closed():
