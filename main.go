@@ -35,6 +35,7 @@ func (p *program) Stop(s service.Service) error {
 }
 
 func main() {
+	os.Setenv("GOTRACEBACK", "all")
 	log.SetFlags(log.LstdFlags | log.Lmicroseconds)
 	log.SetOutput(os.Stdout)
 	//-service install, uninstall, start, stop, restart
