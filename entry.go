@@ -17,7 +17,7 @@ func entry(inter bool, exit chan bool) {
 	ctrlc := make(chan os.Signal, 1)
 	signal.Notify(ctrlc, os.Interrupt)
 
-	log.Println("start")
+	log.Println("start", os.Getpid())
 	defer log.Println("exit")
 
 	loadenv()
