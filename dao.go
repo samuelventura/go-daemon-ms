@@ -6,6 +6,7 @@ import (
 	"strings"
 	"sync"
 
+	"github.com/samuelventura/go-tree"
 	"gorm.io/driver/postgres"
 	"gorm.io/driver/sqlite"
 	"gorm.io/gorm"
@@ -26,9 +27,9 @@ type Dao interface {
 	DelDaemon(name string) error
 }
 
-func Dialector(args Args) gorm.Dialector {
-	driver := args.Get("driver").(string)
-	source := args.Get("source").(string)
+func Dialector(node tree.Node) gorm.Dialector {
+	driver := node.GetValue("driver").(string)
+	source := node.GetValue("source").(string)
 	switch driver {
 	case "sqlite":
 		return sqlite.Open(source)
@@ -39,10 +40,10 @@ func Dialector(args Args) gorm.Dialector {
 	return nil
 }
 
-func NewDao(args Args) Dao {
+func NewDao(node tree.Node) Dao {
 	mode := logger.Default.LogMode(logger.Silent)
 	config := &gorm.Config{Logger: mode}
-	dialector := Dialector(args)
+	dialector := Dialector(node)
 	db, err := gorm.Open(dialector, config)
 	if err != nil {
 		log.Fatal(err)

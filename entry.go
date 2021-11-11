@@ -20,17 +20,7 @@ func entry(inter bool, exit chan bool) {
 	log.Println("start", os.Getpid())
 	defer log.Println("exit")
 
-	loadenv()
-	args := NewArgs()
-	args.Set("driver", getenv("DAEMON_DB_DRIVER", "sqlite"))
-	args.Set("source", getenv("DAEMON_DB_SOURCE", withext("db3")))
-	args.Set("endpoint", getenv("DAEMON_ENDPOINT", "127.0.0.1:31600"))
-
-	dao := NewDao(args)
-	defer dao.Close()
-
-	rlog := tree.NewLog()
-	rnode := tree.NewRoot("root", rlog)
+	rnode := tree.NewRoot("root", log.Println)
 	defer rnode.WaitDisposed()
 	//recover closes as well
 	defer rnode.Recover()
@@ -44,8 +34,13 @@ func entry(inter bool, exit chan bool) {
 	anode := rnode.AddChild("api")
 	defer anode.WaitDisposed()
 	defer anode.Close()
+	loadenv()
+	anode.SetValue("driver", getenv("DAEMON_DB_DRIVER", "sqlite"))
+	anode.SetValue("source", getenv("DAEMON_DB_SOURCE", withext("db3")))
+	anode.SetValue("endpoint", getenv("DAEMON_ENDPOINT", "127.0.0.1:31600"))
+	dao := NewDao(anode) //close on root
+	rnode.AddAction("dao", dao.Close)
 	anode.SetValue("dao", dao)
-	anode.SetValue("endpoint", args.Get("endpoint"))
 	api(anode)
 
 	stdin := make(chan interface{})

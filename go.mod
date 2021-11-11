@@ -5,8 +5,8 @@ go 1.17
 require (
 	github.com/gin-gonic/gin v1.7.4
 	github.com/kardianos/service v1.2.0
-	github.com/samuelventura/go-state v0.1.1-0.20211110170053-a91db9522419
-	github.com/samuelventura/go-tree v0.1.1-0.20211110150658-eec927d5559d
+	github.com/samuelventura/go-state v0.1.1-0.20211111191711-4255471006a4
+	github.com/samuelventura/go-tree v0.1.1-0.20211111191431-a42fa947d0d9
 	gorm.io/driver/postgres v1.2.1
 	gorm.io/driver/sqlite v1.2.3
 	gorm.io/gorm v1.22.2
