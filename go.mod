@@ -4,6 +4,7 @@ go 1.17
 
 require (
 	github.com/gin-gonic/gin v1.7.4
+	github.com/kardianos/service v1.2.0
 	github.com/samuelventura/go-state v0.1.1-0.20211110170053-a91db9522419
 	github.com/samuelventura/go-tree v0.1.1-0.20211110150658-eec927d5559d
 	gorm.io/driver/postgres v1.2.1

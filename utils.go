@@ -2,11 +2,25 @@ package main
 
 import (
 	"bufio"
+	"fmt"
 	"log"
 	"os"
 	"path/filepath"
 	"strings"
 )
+
+func loadenv() {
+	envp := withext(".env")
+	env := environ(envp)
+	for _, line := range env {
+		parts := strings.SplitN(line, "=", 2)
+		if len(parts) != 2 {
+			err := fmt.Errorf("invalid env %s", line)
+			log.Fatal(err)
+		}
+		os.Setenv(parts[0], parts[1])
+	}
+}
 
 func getenv(name string, defval string) string {
 	value := os.Getenv(name)

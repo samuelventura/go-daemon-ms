@@ -1,62 +1,65 @@
 package main
 
 import (
-	"io/ioutil"
+	"flag"
 	"log"
 	"os"
-	"os/signal"
+	"time"
 
-	"github.com/samuelventura/go-state"
-	"github.com/samuelventura/go-tree"
+	"github.com/kardianos/service"
 )
+
+type program struct {
+	done chan bool
+	exit chan bool
+}
+
+func (p *program) Start(s service.Service) (err error) {
+	p.exit = make(chan bool)
+	p.done = make(chan bool)
+	inter := service.Interactive()
+	go func() {
+		defer close(p.done)
+		entry(inter, p.exit)
+	}()
+	return nil
+}
+
+func (p *program) Stop(s service.Service) error {
+	close(p.exit)
+	select {
+	case <-p.done:
+	case <-time.After(3 * time.Second):
+	}
+	return nil
+}
 
 func main() {
 	log.SetFlags(log.LstdFlags | log.Lmicroseconds)
 	log.SetOutput(os.Stdout)
-
-	ctrlc := make(chan os.Signal, 1)
-	signal.Notify(ctrlc, os.Interrupt)
-
-	log.Println("start")
-	defer log.Println("exit")
-
-	args := NewArgs()
-	args.Set("driver", getenv("DAEMON_DB_DRIVER", "sqlite"))
-	args.Set("source", getenv("DAEMON_DB_SOURCE", withext("db3")))
-	args.Set("endpoint", getenv("DAEMON_ENDPOINT", "127.0.0.1:31600"))
-
-	dao := NewDao(args)
-	defer dao.Close()
-
-	rlog := tree.NewLog()
-	rnode := tree.NewRoot("root", rlog)
-	defer rnode.WaitDisposed()
-	//recover closes as well
-	defer rnode.Recover()
-
-	spath := state.SingletonPath()
-	snode := state.Serve(rnode, spath)
-	defer snode.WaitDisposed()
-	defer snode.Close()
-	log.Println("socket", spath)
-
-	anode := rnode.AddChild("api")
-	defer anode.WaitDisposed()
-	defer anode.Close()
-	anode.SetValue("dao", dao)
-	anode.SetValue("endpoint", args.Get("endpoint"))
-	api(anode)
-
-	exit := make(chan interface{})
-	go func() {
-		defer close(exit)
-		ioutil.ReadAll(os.Stdin)
-	}()
-	select {
-	case <-rnode.Closed():
-	case <-snode.Closed():
-	case <-anode.Closed():
-	case <-ctrlc:
-	case <-exit:
+	//-service install, uninstall, start, stop, restart
+	svcFlag := flag.String("service", "", "Control the system service.")
+	flag.Parse()
+	svcConfig := &service.Config{
+		Name:        "GoDaemonMs",
+		DisplayName: "GoDaemonMs Service",
+		Description: "GoDaemonMs https://github.com/samuelventura/go-daemon-ms",
+	}
+	prg := &program{}
+	s, err := service.New(prg, svcConfig)
+	if err != nil {
+		log.Fatal(err)
+	}
+	if len(*svcFlag) != 0 {
+		err := service.Control(s, *svcFlag)
+		if err != nil {
+			log.Printf("Valid actions: %q\n", service.ControlAction)
+			log.Fatal(err)
+		}
+		return
+	}
+	err = s.Run()
+	if err != nil {
+		log.Fatal(err)
 	}
 }
