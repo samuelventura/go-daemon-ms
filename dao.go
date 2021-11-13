@@ -20,8 +20,8 @@ type daoDso struct {
 
 type Dao interface {
 	Close()
-	ListDaemons() *[]DaemonDro
-	GetDaemon(name string) *DaemonDro
+	ListDaemons() []*DaemonDro
+	GetDaemon(name string) (*DaemonDro, error)
 	CreateDaemon(name string, path string) (*DaemonDro, error)
 	EnableDaemon(name string, enabled bool) error
 	DelDaemon(name string) error
@@ -68,26 +68,23 @@ func (dso *daoDso) Close() {
 	}
 }
 
-func (dso *daoDso) ListDaemons() *[]DaemonDro {
+func (dso *daoDso) ListDaemons() []*DaemonDro {
 	dso.mutex.Lock()
 	defer dso.mutex.Unlock()
-	dros := &[]DaemonDro{}
-	result := dso.db.Find(dros)
+	dros := []*DaemonDro{}
+	result := dso.db.Where("true").Find(&dros)
 	if result.Error != nil {
 		log.Fatal(result.Error)
 	}
 	return dros
 }
 
-func (dso *daoDso) GetDaemon(name string) *DaemonDro {
+func (dso *daoDso) GetDaemon(name string) (*DaemonDro, error) {
 	dso.mutex.Lock()
 	defer dso.mutex.Unlock()
 	dro := &DaemonDro{}
 	result := dso.db.Where("name = ?", name).First(dro)
-	if result.Error != nil {
-		return nil
-	}
-	return dro
+	return dro, result.Error
 }
 
 func (dso *daoDso) CreateDaemon(name string, path string) (*DaemonDro, error) {

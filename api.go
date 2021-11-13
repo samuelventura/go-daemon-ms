@@ -27,18 +27,18 @@ func api(node tree.Node) {
 	})
 	rapi.GET("/info/:name", func(c *gin.Context) {
 		name := c.Param("name")
-		row := dao.GetDaemon(name)
-		if row == nil {
-			c.JSON(400, "err: daemon not found")
+		row, err := dao.GetDaemon(name)
+		if err != nil {
+			c.JSON(400, fmt.Sprintf("err: %v", err))
 			return
 		}
 		c.JSON(200, row)
 	})
 	rapi.GET("/env/:name", func(c *gin.Context) {
 		name := c.Param("name")
-		row := dao.GetDaemon(name)
-		if row == nil {
-			c.JSON(400, "err: daemon not found")
+		row, err := dao.GetDaemon(name)
+		if err != nil {
+			c.JSON(400, fmt.Sprintf("err: %v", err))
 			return
 		}
 		envp := changeext(row.Path, ".env")
@@ -46,13 +46,13 @@ func api(node tree.Node) {
 	})
 	rapi.DELETE("/env/:name", func(c *gin.Context) {
 		name := c.Param("name")
-		row := dao.GetDaemon(name)
-		if row == nil {
-			c.JSON(400, "err: daemon not found")
+		row, err := dao.GetDaemon(name)
+		if err != nil {
+			c.JSON(400, fmt.Sprintf("err: %v", err))
 			return
 		}
 		envp := changeext(row.Path, ".env")
-		err := os.Remove(envp)
+		err = os.Remove(envp)
 		if err != nil {
 			c.JSON(400, fmt.Sprintf("err: %v", err))
 			return
@@ -61,9 +61,9 @@ func api(node tree.Node) {
 	})
 	rapi.POST("/env/:name", func(c *gin.Context) {
 		name := c.Param("name")
-		row := dao.GetDaemon(name)
-		if row == nil {
-			c.JSON(400, "err: daemon not found")
+		row, err := dao.GetDaemon(name)
+		if err != nil {
+			c.JSON(400, fmt.Sprintf("err: %v", err))
 			return
 		}
 		envp := changeext(row.Path, ".env")
@@ -79,7 +79,9 @@ func api(node tree.Node) {
 		for _, line := range values {
 			fmt.Fprintln(envf, strings.TrimSpace(line))
 		}
-		c.JSON(200, map[string]interface{}{"Path": envp, "Vars": environ(envp)})
+		c.JSON(200, gin.H{
+			"Path": envp,
+			"Vars": environ(envp)})
 	})
 	rapi.POST("/install/:name", func(c *gin.Context) {
 		name := c.Param("name")
@@ -121,12 +123,12 @@ func api(node tree.Node) {
 	})
 	rapi.POST("/start/:name", func(c *gin.Context) {
 		name := c.Param("name")
-		row := dao.GetDaemon(name)
-		if row == nil {
-			c.JSON(400, "err: daemon not found")
+		row, err := dao.GetDaemon(name)
+		if err != nil {
+			c.JSON(400, fmt.Sprintf("err: %v", err))
 			return
 		}
-		err := manager.Start(row)
+		err = manager.Start(row)
 		if err != nil {
 			c.JSON(400, fmt.Sprintf("err: %v", err))
 			return

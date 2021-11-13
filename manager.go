@@ -30,10 +30,10 @@ func NewManager(dao Dao) Manager {
 	dso.mutex = &sync.Mutex{}
 	dso.daemons = make(map[string]*daemonDso)
 	list := dao.ListDaemons()
-	for _, dro := range *list {
+	for _, dro := range list {
 		log.Println("init", dro.Name, dro.Enabled, dro.Path)
 		if dro.Enabled {
-			err := dso.Start(&dro)
+			err := dso.Start(dro)
 			if err != nil {
 				dso.Close()
 				log.Fatal(err)
