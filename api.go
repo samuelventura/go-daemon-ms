@@ -85,7 +85,11 @@ func api(node tree.Node) {
 	})
 	rapi.POST("/install/:name", func(c *gin.Context) {
 		name := c.Param("name")
-		path, _ := c.GetQuery("path")
+		path, ok := c.GetQuery("path")
+		if !ok {
+			c.JSON(400, "err: missing path param")
+			return
+		}
 		row, err := dao.CreateDaemon(name, path)
 		if err != nil {
 			c.JSON(400, fmt.Sprintf("err: %v", err))
