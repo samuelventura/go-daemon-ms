@@ -39,7 +39,7 @@ func entry(inter bool, exit chan bool) {
 	anode.SetValue("source", getenv("DAEMON_DB_SOURCE", withext("db3")))
 	anode.SetValue("endpoint", getenv("DAEMON_ENDPOINT", "127.0.0.1:31600"))
 	dao := NewDao(anode) //close on root
-	rnode.AddAction("dao", dao.Close)
+	rnode.AddCloser("dao", dao.Close)
 	anode.SetValue("dao", dao)
 	api(anode)
 

@@ -19,7 +19,7 @@ type daoDso struct {
 }
 
 type Dao interface {
-	Close()
+	Close() error
 	ListDaemons() []*DaemonDro
 	GetDaemon(name string) (*DaemonDro, error)
 	CreateDaemon(name string, path string) (*DaemonDro, error)
@@ -55,17 +55,14 @@ func NewDao(node tree.Node) Dao {
 	return &daoDso{&sync.Mutex{}, db}
 }
 
-func (dso *daoDso) Close() {
+func (dso *daoDso) Close() error {
 	dso.mutex.Lock()
 	defer dso.mutex.Unlock()
 	db, err := dso.db.DB()
 	if err != nil {
 		log.Fatal(err)
 	}
-	err = db.Close()
-	if err != nil {
-		log.Fatal(err)
-	}
+	return db.Close()
 }
 
 func (dso *daoDso) ListDaemons() []*DaemonDro {
