@@ -5,14 +5,11 @@ import (
 	"os"
 	"os/exec"
 	"time"
+
+	"github.com/samuelventura/go-tools"
 )
 
 func Run(dro *DaemonDro, exit chan bool) chan bool {
-	panicIfError := func(err error) {
-		if err != nil {
-			panic(err)
-		}
-	}
 	traceRecover := func() {
 		r := recover()
 		if r != nil {
@@ -20,9 +17,9 @@ func Run(dro *DaemonDro, exit chan bool) chan bool {
 		}
 	}
 	done := make(chan bool)
-	outp := changeext(dro.Path, ".out.log")
-	errp := changeext(dro.Path, ".err.log")
-	envp := changeext(dro.Path, ".env")
+	outp := tools.ChangeExtension(dro.Path, "out.log")
+	errp := tools.ChangeExtension(dro.Path, "err.log")
+	envp := tools.ChangeExtension(dro.Path, "env")
 	go func() {
 		defer log.Println("daemon", dro.Name, dro.Path, "exited")
 		defer traceRecover()
@@ -31,22 +28,22 @@ func Run(dro *DaemonDro, exit chan bool) chan bool {
 			defer traceRecover()
 			ff := os.O_APPEND | os.O_WRONLY | os.O_CREATE
 			outf, err := os.OpenFile(outp, ff, 0644)
-			panicIfError(err)
+			tools.PanicIfError(err)
 			defer outf.Close()
 			errf, err := os.OpenFile(errp, ff, 0644)
-			panicIfError(err)
+			tools.PanicIfError(err)
 			defer errf.Close()
-			env := environ(envp)
+			env := tools.ReadEnviron(envp)
 			log.Println("daemon", dro.Name, dro.Name, dro.Path, "env", env)
 			cmd := exec.Command(dro.Path)
 			cmd.Env = env
 			cmd.Stdout = outf
 			cmd.Stderr = errf
 			sin, err := cmd.StdinPipe()
-			panicIfError(err)
+			tools.PanicIfError(err)
 			defer sin.Close()
 			err = cmd.Start()
-			panicIfError(err)
+			tools.PanicIfError(err)
 			pid := cmd.Process.Pid
 			log.Println("daemon", dro.Name, dro.Path, "pid", pid)
 			go func() {
@@ -58,7 +55,7 @@ func Run(dro *DaemonDro, exit chan bool) chan bool {
 				}
 			}()
 			err = cmd.Wait()
-			panicIfError(err)
+			tools.PanicIfError(err)
 		}
 		count := 0
 		for {

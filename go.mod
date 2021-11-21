@@ -5,14 +5,16 @@ go 1.17
 require (
 	github.com/gin-gonic/gin v1.7.4
 	github.com/kardianos/service v1.2.0
-	github.com/samuelventura/go-state v0.1.1-0.20211111191711-4255471006a4
-	github.com/samuelventura/go-tree v0.1.1-0.20211111191431-a42fa947d0d9
+	github.com/samuelventura/go-state v0.1.3
+	github.com/samuelventura/go-tools v0.1.4
+	github.com/samuelventura/go-tree v0.1.1
 	gorm.io/driver/postgres v1.2.1
 	gorm.io/driver/sqlite v1.2.3
 	gorm.io/gorm v1.22.2
 )
 
 require (
+	github.com/felixge/tcpkeepalive v0.0.0-20160804073959-5bb0b2dea91e // indirect
 	github.com/gin-contrib/sse v0.1.0 // indirect
 	github.com/go-playground/locales v0.13.0 // indirect
 	github.com/go-playground/universal-translator v0.17.0 // indirect

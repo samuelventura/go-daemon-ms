@@ -9,6 +9,7 @@ import (
 	"strings"
 
 	"github.com/gin-gonic/gin"
+	"github.com/samuelventura/go-tools"
 	"github.com/samuelventura/go-tree"
 )
 
@@ -41,8 +42,8 @@ func api(node tree.Node) {
 			c.JSON(400, fmt.Sprintf("err: %v", err))
 			return
 		}
-		envp := changeext(row.Path, ".env")
-		c.JSON(200, map[string]interface{}{"Path": envp, "Vars": environ(envp)})
+		envp := tools.ChangeExtension(row.Path, "env")
+		c.JSON(200, map[string]interface{}{"Path": envp, "Vars": tools.ReadEnviron(envp)})
 	})
 	rapi.DELETE("/env/:name", func(c *gin.Context) {
 		name := c.Param("name")
@@ -51,7 +52,7 @@ func api(node tree.Node) {
 			c.JSON(400, fmt.Sprintf("err: %v", err))
 			return
 		}
-		envp := changeext(row.Path, ".env")
+		envp := tools.ChangeExtension(row.Path, "env")
 		err = os.Remove(envp)
 		if err != nil {
 			c.JSON(400, fmt.Sprintf("err: %v", err))
@@ -66,7 +67,7 @@ func api(node tree.Node) {
 			c.JSON(400, fmt.Sprintf("err: %v", err))
 			return
 		}
-		envp := changeext(row.Path, ".env")
+		envp := tools.ChangeExtension(row.Path, "env")
 		ff := os.O_TRUNC | os.O_WRONLY | os.O_CREATE
 		envf, err := os.OpenFile(envp, ff, 0644)
 		if err != nil {
@@ -81,7 +82,7 @@ func api(node tree.Node) {
 		}
 		c.JSON(200, gin.H{
 			"Path": envp,
-			"Vars": environ(envp)})
+			"Vars": tools.ReadEnviron(envp)})
 	})
 	rapi.POST("/install/:name", func(c *gin.Context) {
 		name := c.Param("name")
