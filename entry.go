@@ -39,12 +39,22 @@ func entry(inter bool, exit chan bool) {
 	anode.SetValue("dao", dao)
 	api(anode)
 
-	select {
-	case <-rnode.Closed():
-	case <-snode.Closed():
-	case <-anode.Closed():
-	case <-ctrlc:
-	case <-stdin:
-	case <-exit:
+	if inter {
+		select {
+		case <-rnode.Closed():
+		case <-snode.Closed():
+		case <-anode.Closed():
+		case <-ctrlc:
+		case <-stdin:
+		case <-exit:
+		}
+	} else {
+		select {
+		case <-rnode.Closed():
+		case <-snode.Closed():
+		case <-anode.Closed():
+		case <-ctrlc:
+		case <-exit:
+		}
 	}
 }
