@@ -10,7 +10,6 @@ import (
 )
 
 func entry(inter bool, exit chan bool) {
-	tools.SetupLog()
 	ctrlc := tools.SetupCtrlc()
 	stdin := tools.SetupStdinAll()
 

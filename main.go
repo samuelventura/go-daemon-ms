@@ -3,10 +3,10 @@ package main
 import (
 	"flag"
 	"log"
-	"os"
 	"time"
 
 	"github.com/kardianos/service"
+	"github.com/samuelventura/go-tools"
 )
 
 type program struct {
@@ -35,9 +35,7 @@ func (p *program) Stop(s service.Service) error {
 }
 
 func main() {
-	os.Setenv("GOTRACEBACK", "all")
-	log.SetFlags(log.LstdFlags | log.Lmicroseconds)
-	log.SetOutput(os.Stdout)
+	tools.SetupLog()
 	//-service install, uninstall, start, stop, restart
 	svcFlag := flag.String("service", "", "Control the system service.")
 	flag.Parse()
